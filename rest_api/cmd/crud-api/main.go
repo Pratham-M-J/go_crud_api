@@ -12,6 +12,7 @@ import (
 	"time"         // timeout duration
 
 	"github.com/Pratham-M-J/crud_api/internal/config"
+	"github.com/Pratham-M-J/crud_api/internal/Handler/student"
 )
 
 func main() {
@@ -21,9 +22,8 @@ func main() {
 
 	router := http.NewServeMux() // create request router
 
-	router.HandleFunc("GET /home", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Welcome to CRUD API")) // response for GET /home
-	})
+	router.HandleFunc("POST /api/students", student.New())  // response for GET /home
+	
 
 	server := http.Server{
 		Addr:    cfg.Addr, // server port/address from config
