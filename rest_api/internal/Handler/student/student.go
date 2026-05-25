@@ -24,14 +24,15 @@ func New() http.HandlerFunc{ //inject dependency as an argument
 			return
 		}
 		if err != nil{
-			validateErrs := err.(validator)
 			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
 			return 
 		}
 
 		// validation of request
 		if err:= validator.New().Struct(student); err != nil{
-			response.WriteJson(w, http.StatusBadRequest, response.validationError(err))
+			validateErrs := err.(validator.ValidationErrors)
+			response.WriteJson(w, http.StatusBadRequest, response.ValidationError(validateErrs))
+			return
 		}
 
 		response.WriteJson(w, http.StatusCreated, "Yo yo yo yo")
