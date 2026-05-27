@@ -11,9 +11,10 @@ import (
 	"github.com/Pratham-M-J/crud_api/internal/types"
 	"github.com/go-playground/validator/v10"
 	"github.com/Pratham-M-J/crud_api/internal/utils/response"
+	"github.com/Pratham-M-J/crud_api/internal/storage"
 )
 
-func New() http.HandlerFunc{ //inject dependency as an argument
+func New(storage storage.Storage) http.HandlerFunc{ //inject dependency as an argument
 	return func(w http.ResponseWriter, r *http.Request){
 
 		var student types.Student
@@ -34,7 +35,16 @@ func New() http.HandlerFunc{ //inject dependency as an argument
 			response.WriteJson(w, http.StatusBadRequest, response.ValidationError(validateErrs))
 			return
 		}
-
-		response.WriteJson(w, http.StatusCreated, "Yo yo yo yo")
+		last_id, err := storage.CreateStudent(
+			student.Name,
+			student.Email,
+			student.Age,
+		)
+		if err != nil{
+			response.WriteJson(w, http.StatusInternalServerError, err)
+			return
+		}
+		slog.Info("Student created succesfully")
+		response.WriteJson(w, http.StatusCreated, map[string]int64{"id":last_id})
 	}
 }

@@ -12,6 +12,7 @@ import (
 	"time"         // timeout duration
 
 	"github.com/Pratham-M-J/crud_api/internal/config"
+	"github.com/Pratham-M-J/crud_api/internal/storage/sqlite"
 	"github.com/Pratham-M-J/crud_api/internal/Handler/student"
 )
 
@@ -20,9 +21,17 @@ func main() {
 
 	cfg := config.MustLoad() // load YAML config into struct
 
+	//database setup 
+	storage, err := sqlite.New(cfg)
+	if err != nil{
+		log.Fatal(err)
+	}
+
+	slog.Info("Storage initialized", slog.String("env", cfg.Env), slog.String("version", "1.0.0"))
+
 	router := http.NewServeMux() // create request router
 
-	router.HandleFunc("POST /api/students", student.New())  // response for GET /home
+	router.HandleFunc("POST /api/students", student.New(storage))  // response for GET /home
 	
 
 	server := http.Server{
@@ -58,7 +67,7 @@ func main() {
 	)
 	defer cancel()
 
-	err := server.Shutdown(ctx) // stop server gracefully
+	err = server.Shutdown(ctx) // stop server gracefully
 	if err != nil {
 		slog.Error("failed to shutdown server")
 		log.Fatal(err)
